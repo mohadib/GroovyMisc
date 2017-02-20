@@ -18,7 +18,8 @@ cleanParens = { doc ->
     {
         c = c as char
         if( !inquote && c == open) depth++
-        else if(!inquote && c == close) depth--
+        else if(!inquote && c == close && depth) depth--
+        else if(!inquote && c == close && !depth) clean.append(c) // avoid hits on '1) item one <b> 2) item two'
         else if( c == '"' as char && !depth)
         {
             clean.append(c)
@@ -52,14 +53,14 @@ doIt = { pageName  ->
     } ?: links.find{ !history.contains( it.@href?.text() ) }
 
     def linkToken = link.@href?.text()?.split("/")?.getAt(-1)
+    history.add( link.@href?.text() )
 
     if( linkToken != "Philosophy" )
     {
         println linkToken
-        history.add( link.@href?.text() )
         doIt( linkToken )
     }
 }
 
-doIt( args[0] )
+doIt(args[0] )
 println "\nTotal links to get to Philosophy: ${history.size()}"
